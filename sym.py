@@ -8,13 +8,29 @@ logger.setLevel('INFO')
 
 
 def generate_symmetric_key(len: int) -> str:
-    key = os.urandom(int(len/8))
-    logging.info(
-        ' Сгенерирован ключ для симметричного шифрования')
+    """
+    Функция генерирует ключ для симметричного шифрования
+    :param len: длина ключа
+    :return: ключ 
+    """
+    if len == 128 or len == 192 or len == 256:
+        key = os.urandom(int(len/8))
+        logging.info(
+            ' Сгенерирован ключ для симметричного шифрования')
+    else:
+        logging.info(
+            ' Длина ключа не равна 128, 192, 256')
     return key
 
 
 def encrypt_symmetric(key: bytes, text: bytes, len: int) -> bytes:
+    """
+    Функция шифрует текст алгоритмом симметричного шифрования Camellia
+    :param len: длина ключа
+    :param text: текст, который шифруем
+    :param key: ключ
+    :return: зашифрованный текст
+    """
     padder = padding.ANSIX923(len).padder()
     padded_text = padder.update(text) + padder.finalize()
     iv = os.urandom(16)
@@ -27,6 +43,13 @@ def encrypt_symmetric(key: bytes, text: bytes, len: int) -> bytes:
 
 
 def decrypt_symmetric(key: bytes, cipher_text: bytes, len: int) -> bytes:
+    """
+    Функция расшифровывает симметрично зашифрованный текст
+    :param len: длина ключа
+    :param cipher_text: зашифрованный текст
+    :param key: ключ
+    :return: возвращает расшифрованный текст
+    """
     cipher_text, iv = cipher_text[16:], cipher_text[:16]
     cipher = Cipher(algorithms.Camellia(key), modes.CBC(iv))
     decryptor = cipher.decryptor()
