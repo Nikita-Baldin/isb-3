@@ -31,7 +31,6 @@ def encrypt_asymmetric(public_key, text: bytes) -> bytes:
         logging.info(f' Текст зашифрован алгоритмом асимметричного шифрования')
     except OSError as err:
         logging.warning(f'Ошибка при асимметричном шифровании {err}')
-
     return encrypted_text
 
 
