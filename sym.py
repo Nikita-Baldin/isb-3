@@ -31,14 +31,16 @@ def encrypt_symmetric(key: bytes, text: bytes, len: int) -> bytes:
     :param key: ключ
     :return: зашифрованный текст
     """
-    padder = padding.ANSIX923(len).padder()
-    padded_text = padder.update(text) + padder.finalize()
-    iv = os.urandom(16)
-    cipher = Cipher(algorithms.Camellia(key), modes.CBC(iv))
-    encryptor = cipher.encryptor()
-    cipher_text = encryptor.update(padded_text) + encryptor.finalize()
-    logging.info(
-        ' Текст зашифрован алгоритмом симметричного шифрования Camellia')
+    try:
+        padder = padding.ANSIX923(len).padder()
+        padded_text = padder.update(text) + padder.finalize()
+        iv = os.urandom(16)
+        cipher = Cipher(algorithms.Camellia(key), modes.CBC(iv))
+        encryptor = cipher.encryptor()
+        cipher_text = encryptor.update(padded_text) + encryptor.finalize()
+        logging.info(f' Текст зашифрован алгоритмом симметричного шифрования Camellia')
+    except OSError as err:
+        logging.warning(f' Ошибка при симметричном шифровании {err}')
     return iv + cipher_text
 
 
@@ -50,11 +52,14 @@ def decrypt_symmetric(key: bytes, cipher_text: bytes, len: int) -> bytes:
     :param key: ключ
     :return: возвращает расшифрованный текст
     """
-    cipher_text, iv = cipher_text[16:], cipher_text[:16]
-    cipher = Cipher(algorithms.Camellia(key), modes.CBC(iv))
-    decryptor = cipher.decryptor()
-    text = decryptor.update(cipher_text) + decryptor.finalize()
-    unpadder = padding.ANSIX923(len).unpadder()
-    unpadded_text = unpadder.update(text) + unpadder.finalize()
-    logging.info(' Текст, зашифрованный алгоритмом симметричного шифрования Camellia, расшифрован')
+    try:
+        cipher_text, iv = cipher_text[16:], cipher_text[:16]
+        cipher = Cipher(algorithms.Camellia(key), modes.CBC(iv))
+        decryptor = cipher.decryptor()
+        text = decryptor.update(cipher_text) + decryptor.finalize()
+        unpadder = padding.ANSIX923(len).unpadder()
+        unpadded_text = unpadder.update(text) + unpadder.finalize()
+        logging.info(f' Текст, зашифрованный алгоритмом симметричного шифрования Camellia, расшифрован')
+    except OSError as err:
+        logging.warning(f' Ошибка при симметричном дешифровании {err}')
     return unpadded_text

@@ -25,9 +25,13 @@ def encrypt_asymmetric(public_key, text: bytes) -> bytes:
     :param public_key: открытый ключ
     :return: зашифрованный текст
     """
-    encrypted_text = public_key.encrypt(text, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                           algorithm=hashes.SHA256(), label=None))
-    logging.info(' Текст зашифрован алгоритмом асимметричного шифрования')
+    try:
+        encrypted_text = public_key.encrypt(text, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                               algorithm=hashes.SHA256(), label=None))
+        logging.info(f' Текст зашифрован алгоритмом асимметричного шифрования')
+    except OSError as err:
+        logging.warning(f'Ошибка при асимметричном шифровании {err}')
+
     return encrypted_text
 
 
@@ -38,7 +42,10 @@ def decrypt_asymmetric(private_key, text: bytes) -> bytes:
     :param private_key: закрытый ключ
     :return: расшифрованный текст
     """
-    decrypted_text = private_key.decrypt(text, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                            algorithm=hashes.SHA256(), label=None))
-    logging.info(' Текст, зашифрованный алгоритмом асимметричного шифрования, расшифрован')
+    try:
+        decrypted_text = private_key.decrypt(text, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                                algorithm=hashes.SHA256(), label=None))
+        logging.info(f' Текст, зашифрованный алгоритмом асимметричного шифрования, расшифрован')
+    except OSError as err:
+        logging.warning(f' Ошибка при асимметричном дешифровании {err}')
     return decrypted_text
